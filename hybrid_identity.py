@@ -60,7 +60,8 @@ class Identity(sql_ident.Identity):
             assert utils.check_password(password, user_ref['password'])
         except TypeError:
             raise AssertionError('Invalid user / password')
-        except KeyError:  # if it doesn't have a password, it must be LDAP
+        except (ValueError, KeyError):
+            # if it doesn't have a password, it must be LDAP
             conn = None
             try:
                 # get_connection does a bind for us which checks the password
@@ -101,9 +102,10 @@ class Identity(sql_ident.Identity):
             user_ref = super(Identity, self)._get_user(session, user_id)
         except exception.UserNotFound:
             # then try LDAP
-            return self.user.get(user_id)
-        else:
-            return user_ref
+            user_ref = self.user.get(user_id)
+            user_ref['domain_id'] = CONF.identity.default_domain_id
+
+        return user_ref
 
     def get_user(self, user_id):
         LOG.debug("Called get_user %s" % user_id)
