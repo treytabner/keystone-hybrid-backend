@@ -111,18 +111,19 @@ class Assignment(sql_assign.Assignment):
     def _list_projects(self, user_id):
         user_dn = self.ldap_ident.user._id_to_dn(user_id),
         results = self.ldap_assign.role._ldap_get_list(
-                    self.ldap_assign.project.tree_dn, ldap.SCOPE_SUBTREE,
-                    query_params={self.ldap_assign.role.member_attribute:
-                                  user_dn[0]},
-                    attrlist=[
-                        CONF.ldap.project_id_attribute,
-                        CONF.ldap.project_name_attribute,
-                        CONF.ldap.project_desc_attribute,
-                    ])
+            self.ldap_assign.project.tree_dn, ldap.SCOPE_SUBTREE,
+            query_params={self.ldap_assign.role.member_attribute:
+                          user_dn[0]},
+            attrlist=[
+                CONF.ldap.project_id_attribute,
+                CONF.ldap.project_name_attribute,
+                CONF.ldap.project_desc_attribute,
+            ])
         projects = []
         for result in results:
             project = {
-                'description': result[1].get(CONF.ldap.project_desc_attribute)[0],
+                'description':
+                    result[1].get(CONF.ldap.project_desc_attribute)[0],
                 'domain_id': CONF.ldap_hybrid.default_domain,
                 'enabled': True,
                 'id': result[1].get(CONF.ldap.project_id_attribute)[0],
@@ -153,7 +154,7 @@ class Assignment(sql_assign.Assignment):
                 for role_id in self.default_roles:
                     try:
                         super(Assignment, self).add_role_to_user_and_project(
-                                user_id, project['id'], role_id)
+                            user_id, project['id'], role_id)
                     except:
                         # Don't worry, the role probably has already been added
                         pass
