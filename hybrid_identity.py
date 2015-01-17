@@ -109,8 +109,9 @@ class Identity(sql_ident.Identity):
             # then try LDAP
             user_ref = self.user.get(user_id)
             user_ref['domain_id'] = CONF.identity.default_domain_id
-
-        return user_ref
+            return user_ref
+        else:
+            return user_ref
 
     def get_user(self, user_id):
         LOG.debug("Called get_user %s" % user_id)
@@ -137,4 +138,6 @@ class Identity(sql_ident.Identity):
     def list_users(self, hints):
         sql_users = super(Identity, self).list_users(hints)
         ldap_users = self.user.get_all_filtered()
+        for user in ldap_users:
+            user['domain_id'] = CONF.identity.default_domain_id
         return sql_users + ldap_users
