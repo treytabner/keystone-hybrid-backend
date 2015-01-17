@@ -1,4 +1,4 @@
-# Copyright 2014 Hewlett-Packard Development Company, L.P
+# Copyright 2014 Hewlett-Packard Development Company, L.P.
 # Copyright 2014 SUSE Linux Products GmbH
 # Copyright 2015 IBM Corp.
 #
