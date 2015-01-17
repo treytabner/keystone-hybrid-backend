@@ -1,5 +1,6 @@
 # Copyright 2012-2014 SUSE Linux Products GmbH
 # Copyright 2012 OpenStack LLC
+# Copyright 2015 IBM Corp.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -24,6 +25,7 @@ from keystone import exception
 from keystone import identity
 from keystone.identity.backends import ldap as ldap_backend
 from keystone.identity.backends import sql as sql_ident
+from keystone.assignment.backends import hybrid_assignment as hybrid_assign
 from keystone.openstack.common import log
 
 CONF = config.CONF
@@ -36,6 +38,7 @@ class Identity(sql_ident.Identity):
         super(Identity, self).__init__(*args, **kwargs)
         self.user = ldap_backend.UserApi(CONF)
         self.domain_aware = True
+        self.assign = hybrid_assign.Assignment()
 
     # Identity interface
     def authenticate(self, user_id, password):
@@ -73,6 +76,8 @@ class Identity(sql_ident.Identity):
             else:
                 LOG.debug("Authenticated user with LDAP.")
                 self.domain_aware = False
+                # Automatically populate projects from LDAP
+                self.assign.list_projects_for_user(user_id, '', None)
             finally:
                 if conn:
                     conn.unbind_s()
